@@ -20,7 +20,8 @@ public class TestArm {
 
     @BeforeClass
     public static void beforeClass() {
-        Robot.m_arm = new Arm();
+        if (Robot.m_arm == null)
+            Robot.m_arm = new Arm();
         motor = (Victor) Utils.GetPrivate(Robot.m_arm, "motor");
         pot = (AnalogPotentiometer) Utils.ReflectAndSpy(Robot.m_arm, "pot");
         upperLimitSwitch = (DigitalInput) Utils.ReflectAndSpy(Robot.m_arm, "upperLimitSwitch");
