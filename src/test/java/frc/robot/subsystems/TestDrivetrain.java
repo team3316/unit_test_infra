@@ -3,8 +3,6 @@ package frc.robot.subsystems;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import java.lang.reflect.Field;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -12,39 +10,25 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Victor;
 import frc.robot.Robot;
+import frc.utils.Utils;
 
 
 public class TestDrivetrain {
-    static Victor mockedMotor;
-    static AnalogPotentiometer mockedPot;
-    static DigitalInput mockedUpperLimitSwitch, mockedLowerLimitSwitch;
+    static Victor motor;
+    static AnalogPotentiometer pot;
+    static DigitalInput upperLimitSwitch, lowerLimitSwitch;
 
     @BeforeClass
-    public static void beforeClass() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-       
-        Field motorField = Arm.class.getDeclaredField("motor");
-        motorField.setAccessible(true);
-        Field potField = Arm.class.getDeclaredField("pot");
-        potField.setAccessible(true);
-        Field upperLimitSwitchField = Arm.class.getDeclaredField("upperLimitSwitch");
-        upperLimitSwitchField.setAccessible(true);
-        Field lowerLimitSwitchField = Arm.class.getDeclaredField("lowerLimitSwitch");
-        lowerLimitSwitchField.setAccessible(true);
-
-        mockedMotor = mock(Victor.class);
-        motorField.set(Robot.m_arm, mockedMotor);
-        mockedPot = mock(AnalogPotentiometer.class);
-        potField.set(Robot.m_arm, mockedPot);
-        mockedUpperLimitSwitch = mock(DigitalInput.class);
-        upperLimitSwitchField.set(Robot.m_arm, mockedUpperLimitSwitch);
-        mockedLowerLimitSwitch = mock(DigitalInput.class);
-        lowerLimitSwitchField.set(Robot.m_arm, mockedLowerLimitSwitch);
-        
+    public static void beforeClass() {
+        motor = (Victor) Utils.GetPrivate(Robot.m_arm, "motor");
+        pot = (AnalogPotentiometer) Utils.ReflectAndSpy(Robot.m_arm, "pot");
+        upperLimitSwitch = (DigitalInput) Utils.ReflectAndSpy(Robot.m_arm, "upperLimitSwitch");
+        lowerLimitSwitch = (DigitalInput) Utils.ReflectAndSpy(Robot.m_arm, "lowerLimitSwitch");
     }
 
     @Test
     public void testAtTarget() {
-        when(mockedPot.get()).thenReturn(Arm.ArmState.LOWER.getPosition());
+        when(pot.get()).thenReturn(Arm.ArmState.LOWER.getPosition());
 
         Robot.m_arm.setTarget(Arm.ArmState.LOWER);
 
@@ -54,7 +38,7 @@ public class TestDrivetrain {
 			fail();
         }
         
-        when(mockedPot.get()).thenReturn(Arm.ArmState.UPPER.getPosition());
+        when(pot.get()).thenReturn(Arm.ArmState.UPPER.getPosition());
 
         Robot.m_arm.setTarget(Arm.ArmState.LOWER);
 
@@ -73,17 +57,17 @@ public class TestDrivetrain {
 
     @Test
     public void testSpeedToTarget() {
-        when(mockedPot.get()).thenReturn(Arm.ArmState.LOWER.getPosition());
+        when(pot.get()).thenReturn(Arm.ArmState.LOWER.getPosition());
 
         Robot.m_arm.setTarget(Arm.ArmState.UPPER);
         assertEquals(1.0, Robot.m_arm.getSpeedToTarget(), 0);
         
-        when(mockedPot.get()).thenReturn(Arm.ArmState.UPPER.getPosition());
+        when(pot.get()).thenReturn(Arm.ArmState.UPPER.getPosition());
 
         Robot.m_arm.setTarget(Arm.ArmState.LOWER);
         assertEquals(-1.0, Robot.m_arm.getSpeedToTarget(), 0);
         
-        when(mockedPot.get()).thenReturn(Arm.ArmState.FEED.getPosition());
+        when(pot.get()).thenReturn(Arm.ArmState.FEED.getPosition());
 
         Robot.m_arm.setTarget(Arm.ArmState.FEED);
         assertEquals(0, Robot.m_arm.getSpeedToTarget(), 0);
@@ -94,39 +78,39 @@ public class TestDrivetrain {
 
     @Test
     public void testSetMotor() {
-        when(mockedLowerLimitSwitch.get()).thenReturn(false);
-        when(mockedUpperLimitSwitch.get()).thenReturn(false);
+        when(lowerLimitSwitch.get()).thenReturn(false);
+        when(upperLimitSwitch.get()).thenReturn(false);
         Robot.m_arm.setMotor(0.0);
-        verify(mockedMotor, times(1)).set(0.0);
+        assertEquals(0.0, motor.get(), 0);
 
-        when(mockedLowerLimitSwitch.get()).thenReturn(false);
-        when(mockedUpperLimitSwitch.get()).thenReturn(false);
+        when(lowerLimitSwitch.get()).thenReturn(false);
+        when(upperLimitSwitch.get()).thenReturn(false);
         Robot.m_arm.setMotor(1.0);
-        verify(mockedMotor, times(1)).set(1.0);
+        assertEquals(1.0, motor.get(), 0);
 
-        when(mockedLowerLimitSwitch.get()).thenReturn(false);
-        when(mockedUpperLimitSwitch.get()).thenReturn(false);
+        when(lowerLimitSwitch.get()).thenReturn(false);
+        when(upperLimitSwitch.get()).thenReturn(false);
         Robot.m_arm.setMotor(-1.0);
-        verify(mockedMotor, times(1)).set(-1.0);
+        assertEquals(-1.0, motor.get(), 0);
 
-        when(mockedLowerLimitSwitch.get()).thenReturn(true);
-        when(mockedUpperLimitSwitch.get()).thenReturn(false);
+        when(lowerLimitSwitch.get()).thenReturn(true);
+        when(upperLimitSwitch.get()).thenReturn(false);
         Robot.m_arm.setMotor(1.0);
-        verify(mockedMotor, times(2)).set(1.0);
+        assertEquals(1.0, motor.get(), 0);
 
-        when(mockedLowerLimitSwitch.get()).thenReturn(false);
-        when(mockedUpperLimitSwitch.get()).thenReturn(true);
+        when(lowerLimitSwitch.get()).thenReturn(false);
+        when(upperLimitSwitch.get()).thenReturn(true);
         Robot.m_arm.setMotor(-1.0);
-        verify(mockedMotor, times(2)).set(-1.0);
+        assertEquals(-1.0, motor.get(), 0);
 
-        when(mockedLowerLimitSwitch.get()).thenReturn(true);
-        when(mockedUpperLimitSwitch.get()).thenReturn(false);
+        when(lowerLimitSwitch.get()).thenReturn(true);
+        when(upperLimitSwitch.get()).thenReturn(false);
         Robot.m_arm.setMotor(-1.0);
-        verify(mockedMotor, times(2)).set(0.0);
+        assertEquals(0.0, motor.get(), 0);
 
-        when(mockedLowerLimitSwitch.get()).thenReturn(false);
-        when(mockedUpperLimitSwitch.get()).thenReturn(true);
+        when(lowerLimitSwitch.get()).thenReturn(false);
+        when(upperLimitSwitch.get()).thenReturn(true);
         Robot.m_arm.setMotor(1.0);
-        verify(mockedMotor, times(3)).set(0.0);
+        assertEquals(0.0, motor.get(), 0);
     }
 }

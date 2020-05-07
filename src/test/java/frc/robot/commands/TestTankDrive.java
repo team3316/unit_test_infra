@@ -23,11 +23,6 @@ public class TestTankDrive extends TestCommands {
             Robot.m_oi = new OI();
     }
 
-    public void testElevatorUp() {
-        Joystick a;
-        
-    }
-
     @Test
     public void testTankDrive() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
         Joystick leftStick = (Joystick) Utils.ReflectAndSpy(Robot.m_oi, "leftStick");
