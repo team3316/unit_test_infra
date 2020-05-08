@@ -1,116 +1,43 @@
 package frc.robot.subsystems;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.wpi.first.wpilibj.AnalogPotentiometer;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Victor;
-import frc.robot.Robot;
 import frc.utils.Utils;
 
-
 public class TestDrivetrain {
-    static Victor motor;
-    static AnalogPotentiometer pot;
-    static DigitalInput upperLimitSwitch, lowerLimitSwitch;
+    static Victor m_leftMotor, m_rightMotor;
+    static Drivetrain m_drivetrain;
 
     @BeforeClass
-    public static void beforeClass() {
-        motor = (Victor) Utils.GetPrivate(Robot.m_arm, "motor");
-        pot = (AnalogPotentiometer) Utils.ReflectAndSpy(Robot.m_arm, "pot");
-        upperLimitSwitch = (DigitalInput) Utils.ReflectAndSpy(Robot.m_arm, "upperLimitSwitch");
-        lowerLimitSwitch = (DigitalInput) Utils.ReflectAndSpy(Robot.m_arm, "lowerLimitSwitch");
+    public static void initSubsystem() {
+        m_drivetrain = new Drivetrain();
+        m_leftMotor = (Victor) Utils.GetPrivate(m_drivetrain, "leftMotor");
+        m_rightMotor = (Victor) Utils.GetPrivate(m_drivetrain, "rightMotor");
+    }
+
+    @AfterClass
+    public static void closeSubsystem() {
+        m_drivetrain.close();
     }
 
     @Test
-    public void testAtTarget() {
-        when(pot.get()).thenReturn(Arm.ArmState.LOWER.getPosition());
+    public void testTankDrive() {
+        m_drivetrain.tankDrive(1.0, -1.0);
+        assertEquals(1.0, m_leftMotor.get(), 0);
+        assertEquals(-1.0, m_rightMotor.get(), 0);
 
-        Robot.m_arm.setTarget(Arm.ArmState.LOWER);
+        m_drivetrain.tankDrive(-4.0, 0.0);
+        assertEquals(-1.0, m_leftMotor.get(), 0);
+        assertEquals(0.0, m_rightMotor.get(), 0);
 
-        try {
-			assertTrue(Robot.m_arm.atTarget());
-		} catch (Arm.NoTargetException e) {
-			fail();
-        }
-        
-        when(pot.get()).thenReturn(Arm.ArmState.UPPER.getPosition());
-
-        Robot.m_arm.setTarget(Arm.ArmState.LOWER);
-
-        try {
-			assertFalse(Robot.m_arm.atTarget());
-		} catch (Arm.NoTargetException e) {
-			fail();
-		}
-    }
-    
-    @Test(expected = Arm.NoTargetException.class)
-    public void testNoTarget() throws Arm.NoTargetException {
-        Robot.m_arm.setTarget(null);
-        Robot.m_arm.atTarget();
+        m_drivetrain.tankDrive(0.0, 0.2);
+        assertEquals(0.0, m_leftMotor.get(), 0);
+        assertEquals(Math.pow(0.2, 2), m_rightMotor.get(), 0.01); // Squared inputs
     }
 
-    @Test
-    public void testSpeedToTarget() {
-        when(pot.get()).thenReturn(Arm.ArmState.LOWER.getPosition());
-
-        Robot.m_arm.setTarget(Arm.ArmState.UPPER);
-        assertEquals(1.0, Robot.m_arm.getSpeedToTarget(), 0);
-        
-        when(pot.get()).thenReturn(Arm.ArmState.UPPER.getPosition());
-
-        Robot.m_arm.setTarget(Arm.ArmState.LOWER);
-        assertEquals(-1.0, Robot.m_arm.getSpeedToTarget(), 0);
-        
-        when(pot.get()).thenReturn(Arm.ArmState.FEED.getPosition());
-
-        Robot.m_arm.setTarget(Arm.ArmState.FEED);
-        assertEquals(0, Robot.m_arm.getSpeedToTarget(), 0);
-
-        Robot.m_arm.setTarget(null);
-        assertEquals(0, Robot.m_arm.getSpeedToTarget(), 0);
-    }
-
-    @Test
-    public void testSetMotor() {
-        when(lowerLimitSwitch.get()).thenReturn(false);
-        when(upperLimitSwitch.get()).thenReturn(false);
-        Robot.m_arm.setMotor(0.0);
-        assertEquals(0.0, motor.get(), 0);
-
-        when(lowerLimitSwitch.get()).thenReturn(false);
-        when(upperLimitSwitch.get()).thenReturn(false);
-        Robot.m_arm.setMotor(1.0);
-        assertEquals(1.0, motor.get(), 0);
-
-        when(lowerLimitSwitch.get()).thenReturn(false);
-        when(upperLimitSwitch.get()).thenReturn(false);
-        Robot.m_arm.setMotor(-1.0);
-        assertEquals(-1.0, motor.get(), 0);
-
-        when(lowerLimitSwitch.get()).thenReturn(true);
-        when(upperLimitSwitch.get()).thenReturn(false);
-        Robot.m_arm.setMotor(1.0);
-        assertEquals(1.0, motor.get(), 0);
-
-        when(lowerLimitSwitch.get()).thenReturn(false);
-        when(upperLimitSwitch.get()).thenReturn(true);
-        Robot.m_arm.setMotor(-1.0);
-        assertEquals(-1.0, motor.get(), 0);
-
-        when(lowerLimitSwitch.get()).thenReturn(true);
-        when(upperLimitSwitch.get()).thenReturn(false);
-        Robot.m_arm.setMotor(-1.0);
-        assertEquals(0.0, motor.get(), 0);
-
-        when(lowerLimitSwitch.get()).thenReturn(false);
-        when(upperLimitSwitch.get()).thenReturn(true);
-        Robot.m_arm.setMotor(1.0);
-        assertEquals(0.0, motor.get(), 0);
-    }
 }

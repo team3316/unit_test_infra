@@ -7,27 +7,34 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Robot;
+import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Drivetrain;
 
 /**
  * An example command.  You can replace me with your own command.
  */
-public class TankDrive extends Command {
-  public TankDrive() {
-    // Use requires() here to declare subsystem dependencies
-    requires(Robot.m_drivetrain);
+public class TankDrive extends CommandBase {
+  Drivetrain m_drivetrain;
+  DoubleSupplier leftSupplier, rightSupplier;
+
+  public TankDrive(Drivetrain drivetrain, DoubleSupplier left, DoubleSupplier right) {
+    m_drivetrain = drivetrain;
+    leftSupplier = left;
+    rightSupplier = right;
+    addRequirements(m_drivetrain);
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
-  protected void execute() {
-    Robot.m_drivetrain.tankDrive(Robot.m_oi.leftStick.getY(), Robot.m_oi.rightStick.getY());
+  public void execute() {
+    m_drivetrain.tankDrive(leftSupplier.getAsDouble(), rightSupplier.getAsDouble());
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
-  protected boolean isFinished() {
+  public boolean isFinished() {
     return false;
   }
 }

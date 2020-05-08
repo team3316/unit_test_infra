@@ -1,10 +1,9 @@
 package frc.robot.commands;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.BeforeClass;
-import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.Scheduler;
-import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.utils.MockedRobotState;
 
 public abstract class TestCommands {
@@ -13,18 +12,9 @@ public abstract class TestCommands {
         MockedRobotState.getInstance();
     }
 
-    @BeforeClass
-    public static void initSubsystem() {
-        // initialize any subsystems you are testing commands for
-    }
-
-    @AfterClass
-    public static void cleanScheduler() {
-        Scheduler.getInstance().removeAll();
-    }
-
-    protected static void runDefaultCommand(Subsystem subsystem) {
-        runCommand(subsystem.getDefaultCommand(), false);
+    @After
+    public void clearScheduler() {
+        CommandScheduler.getInstance().cancelAll();
     }
 
     protected static void runCommand(Command _cmd) {
@@ -33,17 +23,24 @@ public abstract class TestCommands {
 
     protected static void runCommand(Command _cmd, boolean untilFinished) {
         MockedRobotState.getInstance().enableRobot();
-        Scheduler.getInstance().enable();
+        CommandScheduler.getInstance().enable();
 
-        if (!_cmd.isRunning())
-            _cmd.start();  // If cmd isn't running, push it to scheduler.
-            Scheduler.getInstance().run();
-
+        if (!_cmd.isScheduled())
+            _cmd.schedule();  // If cmd isn't running, push it to scheduler.
+            
         do {  // Run scheduler while command is running
-            Scheduler.getInstance().run();
-        } while (_cmd.isRunning() && untilFinished);
+            CommandScheduler.getInstance().run();
+        } while (!_cmd.isFinished() && untilFinished);
 
-        Scheduler.getInstance().disable();
+        CommandScheduler.getInstance().disable();
+        MockedRobotState.getInstance().disableRobot();
+    }
+
+    protected static void runScheduler() {
+        MockedRobotState.getInstance().enableRobot();
+        CommandScheduler.getInstance().enable();
+        CommandScheduler.getInstance().run();
+        CommandScheduler.getInstance().disable();
         MockedRobotState.getInstance().disableRobot();
     }
 }

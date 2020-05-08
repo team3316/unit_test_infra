@@ -8,33 +8,30 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import frc.robot.RobotMap;
-import frc.robot.commands.TankDrive;
 
 /**
  * An example subsystem.  You can replace me with your own Subsystem.
  */
-public class Drivetrain extends Subsystem {
-  // Put methods for controlling this subsystem
-  // here. Call these from Commands.
+public class Drivetrain extends SubsystemBase {
   Victor leftMotor;
   Victor rightMotor;
   DifferentialDrive mDrive;
 
   public Drivetrain() {
-    leftMotor = new Victor(RobotMap.leftMotor);
-    rightMotor = new Victor(RobotMap.rightMotor);
+    leftMotor = new Victor(Constants.DrivetrainConstants.kLeftMotorPort);
+    rightMotor = new Victor(Constants.DrivetrainConstants.kRightMotorPort);
     rightMotor.setInverted(true);
     mDrive = new DifferentialDrive(leftMotor, rightMotor);
     mDrive.setRightSideInverted(true);
   }
 
-  @Override
-  public void initDefaultCommand() {
-    // Set the default command for a subsystem here.
-    setDefaultCommand(new TankDrive());
+  public void close() {
+    leftMotor.close();
+    rightMotor.close();
+    mDrive.close();
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed) {

@@ -7,43 +7,29 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.Robot;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Arm;
 
 /**
  * An example command.  You can replace me with your own command.
  */
-public class MoveArm extends Command {
-  public MoveArm() {
-    // Use requires() here to declare subsystem dependencies
-    requires(Robot.m_arm);
-  }
-
-  // Called just before this Command runs the first time
-  @Override
-  protected void initialize() {
+public class MoveArm extends CommandBase {
+  Arm m_arm;
+  
+  public MoveArm(Arm arm) {
+    m_arm = arm;
+    addRequirements(m_arm);
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
-  protected void execute() {
-    Robot.m_arm.setMotor(Robot.m_arm.getSpeedToTarget());
+  public void execute() {
+    m_arm.setMotor(m_arm.getSpeedToTarget());
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
-  protected boolean isFinished() {
+  public boolean isFinished() {
     return false;
-  }
-
-  // Called once after isFinished returns true
-  @Override
-  protected void end() {
-  }
-
-  // Called when another command which requires one or more of the same
-  // subsystems is scheduled to run
-  @Override
-  protected void interrupted() {
   }
 }

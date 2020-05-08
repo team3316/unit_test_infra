@@ -14,10 +14,32 @@ package frc.robot;
  * floating around.
  */
 public class Constants {
-  public static double armFullRange = 270;
-  public static double armLowerPosition = 10;
-  public static double armFeedPosition = 30;
-  public static double armUpperPosition = 120;
-  public static double armPositionError = 5;
+  public static final class AutonConstants {
+    public static final double kDriveTime = 2.0; // seconds
+    public static final double kDriveSpeed = 0.5;
+  }
+  
+  public static final class DrivetrainConstants {
+    public static final int kLeftMotorPort = 1;  // PWM
+    public static final int kRightMotorPort = 2; // PWM
+  }
 
+  public static final class ArmConstants {
+    public static final int kMotorPort = 3;            // PWM
+    public static final int kPotentiometerPort = 1;    // AIO
+    public static final int kUpperLimitSwitchPort = 1; // DIO
+    public static final int kLowerLimitSwitchPort = 2; // DIO
+
+    public static final double kFullRange = 270;
+    public static final double kLowerPosition = 10;
+    public static final double kFeedPosition = 30;
+    public static final double kUpperPosition = 120;
+    public static final double kPositionError = 5;
+  }
+
+  public static final class OIConstants {
+    public static final int kDriverLeftJoystickPort = 1;
+    public static final int kDriverRightJoystickPort = 2;
+    public static final int kDriverGamepadPort = 3;
+  }
 }

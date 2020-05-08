@@ -7,46 +7,41 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Arm.ArmState;
-import frc.robot.subsystems.Arm.NoTargetException;
+import frc.robot.subsystems.Drivetrain;
 
 /**
  * An example command.  You can replace me with your own command.
  */
-public class MoveArmDown extends CommandBase {
-  Arm m_arm;
+public class TimeDrive extends CommandBase {
+  Timer timer = new Timer();
+  Drivetrain m_drivetrain;
+  double driveTime, driveSpeed;
 
-  public MoveArmDown(Arm arm) {
-    m_arm = arm;
+  public TimeDrive(Drivetrain drivetrain, double time, double speed) {
+    m_drivetrain = drivetrain;
+    driveTime = time;
+    driveSpeed = speed;
+    addRequirements(m_drivetrain);
   }
-  
+
   @Override
   public void initialize() {
-    ArmState target;
+    timer.start();
+    m_drivetrain.tankDrive(driveSpeed, driveSpeed);
+  }
 
-    try {
-      target = m_arm.getTarget();
-    } catch (NoTargetException e) {
-      return;
-    }
-
-    switch (target) {
-    case FEED:
-      m_arm.setTarget(ArmState.LOWER);
-      break;
-    case UPPER:
-      m_arm.setTarget(ArmState.FEED);
-      break;
-    default:
-      // Don't move arm
-    }
+  @Override
+  public void end(boolean interrupted) {
+    m_drivetrain.tankDrive(0.0, 0.0);
+    timer.stop();
+    timer.reset();
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    return true;
+    return timer.get() > driveTime;
   }
 }

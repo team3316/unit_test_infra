@@ -10,30 +10,35 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.command.Subsystem;
-import frc.robot.RobotMap;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Utils;
-import frc.robot.commands.MoveArm;
 import frc.robot.Constants;
 
 /**
  * An example subsystem.  You can replace me with your own Subsystem.
  */
-public class Arm extends Subsystem {
+public class Arm extends SubsystemBase {
   private Victor motor;
   private AnalogPotentiometer pot;
   private DigitalInput upperLimitSwitch, lowerLimitSwitch;
   private ArmState targetState;
   
   public Arm() {
-    motor = new Victor(RobotMap.armMotor);
-    pot = new AnalogPotentiometer(RobotMap.armPotentiometer, Constants.armFullRange);
-    upperLimitSwitch = new DigitalInput(RobotMap.armUpperLimitSwitch);
-    lowerLimitSwitch = new DigitalInput(RobotMap.armLowerLimitSwitch);
+    motor = new Victor(Constants.ArmConstants.kMotorPort);
+    pot = new AnalogPotentiometer(Constants.ArmConstants.kPotentiometerPort, Constants.ArmConstants.kFullRange);
+    upperLimitSwitch = new DigitalInput(Constants.ArmConstants.kUpperLimitSwitchPort);
+    lowerLimitSwitch = new DigitalInput(Constants.ArmConstants.kLowerLimitSwitchPort);
+  }
+
+  public void close() {
+    motor.close();
+    pot.close();
+    upperLimitSwitch.close();
+    lowerLimitSwitch.close();
   }
 
   public enum ArmState {
-    LOWER(Constants.armLowerPosition), FEED(Constants.armFeedPosition), UPPER(Constants.armUpperPosition);
+    LOWER(Constants.ArmConstants.kLowerPosition), FEED(Constants.ArmConstants.kFeedPosition), UPPER(Constants.ArmConstants.kUpperPosition);
 
     private final double pos;
 
@@ -52,20 +57,13 @@ public class Arm extends Subsystem {
     private static final long serialVersionUID = 1L;
   }
 
-
-  @Override
-  public void initDefaultCommand() {
-    // Set the default command for a subsystem here.
-    setDefaultCommand(new MoveArm());
-  }
-
   public boolean atTarget() throws NoTargetException {
     if (targetState == null)
       throw new NoTargetException();
 
     double value = pot.get();
     double target = targetState.getPosition();
-    return Utils.inRange(value, target, Constants.armPositionError);
+    return Utils.inRange(value, target, Constants.ArmConstants.kPositionError);
   }
 
   boolean atLimit(double speed) {

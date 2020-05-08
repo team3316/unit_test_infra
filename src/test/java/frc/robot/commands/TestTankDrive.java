@@ -1,66 +1,81 @@
 package frc.robot.commands;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 
+import java.util.function.DoubleSupplier;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Victor;
-import frc.robot.OI;
-import frc.robot.Robot;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain;
 import frc.utils.Utils;
 
 public class TestTankDrive extends TestCommands {
+    static Drivetrain m_drivetrain;
+    static Victor m_leftMotor, m_rightMotor;
+
     @BeforeClass
     public static void initSubsystem() {
-        if (Robot.m_drivetrain == null)
-            Robot.m_drivetrain = new Drivetrain();
-        if (Robot.m_oi == null)
-            Robot.m_oi = new OI();
+        m_drivetrain = new Drivetrain();
+        m_leftMotor = (Victor) Utils.GetPrivate(m_drivetrain, "leftMotor");
+        m_rightMotor = (Victor) Utils.GetPrivate(m_drivetrain, "rightMotor");
     }
 
+    @AfterClass
+    public static void closeSubsystem() {
+        m_drivetrain.close();
+    }
+
+    class MockSupplier implements DoubleSupplier {
+        public double value = 0.0;
+
+        @Override
+        public double getAsDouble() {
+            return value;
+        }
+    }
+    
     @Test
-    public void testTankDrive() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-        Joystick leftStick = (Joystick) Utils.ReflectAndSpy(Robot.m_oi, "leftStick");
-        Joystick rightStick = (Joystick) Utils.ReflectAndSpy(Robot.m_oi, "rightStick");
-        Victor leftMotor = (Victor) Utils.GetPrivate(Robot.m_drivetrain, "leftMotor");
-        Victor rightMotor = (Victor) Utils.GetPrivate(Robot.m_drivetrain, "rightMotor");
+    public void testTankDrive() {
+        MockSupplier leftSupplier = new MockSupplier();
+        MockSupplier rightSupplier = new MockSupplier();
+
+        Command m_tankDriveCommand = new TankDrive(m_drivetrain, leftSupplier, rightSupplier);
         
         // Case 1: Don't move
-        when(leftStick.getY()).thenReturn(0.0);
-        when(rightStick.getY()).thenReturn(0.0);
-        runDefaultCommand(Robot.m_drivetrain);
+        leftSupplier.value = 0.0;
+        rightSupplier.value = 0.0;
+        runCommand(m_tankDriveCommand);
 
-        assertEquals(0.0, leftMotor.get(), 0);
-        assertEquals(0.0, rightMotor.get(), 0);
+        assertEquals(0.0, m_leftMotor.get(), 0);
+        assertEquals(0.0, m_rightMotor.get(), 0);
         
         // Case 2: Turn right in place
-        when(leftStick.getY()).thenReturn(1.0);
-        when(rightStick.getY()).thenReturn(-1.0);
-        runDefaultCommand(Robot.m_drivetrain);
+        leftSupplier.value = 1.0;
+        rightSupplier.value = -1.0;
+        runCommand(m_tankDriveCommand);
 
-        assertEquals(1.0, leftMotor.get(), 0);
-        assertEquals(-1.0, rightMotor.get(), 0);
+        assertEquals(1.0, m_leftMotor.get(), 0);
+        assertEquals(-1.0, m_rightMotor.get(), 0);
         
         // Case 3: Turn left and back
-        when(leftStick.getY()).thenReturn(0.0);
-        when(rightStick.getY()).thenReturn(-1.0);
-        runDefaultCommand(Robot.m_drivetrain);
+        leftSupplier.value = 0.0;
+        rightSupplier.value = -1.0;
+        runCommand(m_tankDriveCommand);
 
-        assertEquals(0.0, leftMotor.get(), 0);
-        assertEquals(-1.0, rightMotor.get(), 0);
+        assertEquals(0.0, m_leftMotor.get(), 0);
+        assertEquals(-1.0, m_rightMotor.get(), 0);
         
         // Case 4: Drive straight
-        when(leftStick.getY()).thenReturn(1.0);
-        when(rightStick.getY()).thenReturn(1.0);
-        runDefaultCommand(Robot.m_drivetrain);
+        leftSupplier.value = 1.0;
+        rightSupplier.value = 1.0;
+        runCommand(m_tankDriveCommand);
 
-        assertEquals(1.0, leftMotor.get(), 0);
-        assertEquals(1.0, rightMotor.get(), 0);
+        assertEquals(1.0, m_leftMotor.get(), 0);
+        assertEquals(1.0, m_rightMotor.get(), 0);
     }
 
 }
