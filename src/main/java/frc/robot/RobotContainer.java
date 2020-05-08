@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.OIConstants;
 import frc.robot.commands.MoveArm;
 import frc.robot.commands.MoveArmDown;
 import frc.robot.commands.MoveArmUp;
@@ -46,9 +47,9 @@ public class RobotContainer {
   SendableChooser<Command> m_chooser = new SendableChooser<>();
 
   // The driver's controllers
-  private final Joystick m_leftJoystick = new Joystick(Constants.OIConstants.kDriverLeftJoystickPort);
-  private final Joystick m_rightJoystick = new Joystick(Constants.OIConstants.kDriverRightJoystickPort);
-  private final XboxController m_gamepad = new XboxController(Constants.OIConstants.kDriverGamepadPort);
+  private final Joystick m_leftJoystick = new Joystick(OIConstants.kDriverLeftJoystickPort);
+  private final Joystick m_rightJoystick = new Joystick(OIConstants.kDriverRightJoystickPort);
+  private final XboxController m_gamepad = new XboxController(OIConstants.kDriverGamepadPort);
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.

@@ -9,7 +9,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.DrivetrainConstants;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 /**
@@ -21,8 +21,8 @@ public class Drivetrain extends SubsystemBase {
   DifferentialDrive mDrive;
 
   public Drivetrain() {
-    leftMotor = new Victor(Constants.DrivetrainConstants.kLeftMotorPort);
-    rightMotor = new Victor(Constants.DrivetrainConstants.kRightMotorPort);
+    leftMotor = new Victor(DrivetrainConstants.kLeftMotorPort);
+    rightMotor = new Victor(DrivetrainConstants.kRightMotorPort);
     rightMotor.setInverted(true);
     mDrive = new DifferentialDrive(leftMotor, rightMotor);
     mDrive.setRightSideInverted(true);

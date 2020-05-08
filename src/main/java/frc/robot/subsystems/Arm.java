@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Utils;
-import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
 
 /**
  * An example subsystem.  You can replace me with your own Subsystem.
@@ -24,10 +24,10 @@ public class Arm extends SubsystemBase {
   private ArmState targetState;
   
   public Arm() {
-    motor = new Victor(Constants.ArmConstants.kMotorPort);
-    pot = new AnalogPotentiometer(Constants.ArmConstants.kPotentiometerPort, Constants.ArmConstants.kFullRange);
-    upperLimitSwitch = new DigitalInput(Constants.ArmConstants.kUpperLimitSwitchPort);
-    lowerLimitSwitch = new DigitalInput(Constants.ArmConstants.kLowerLimitSwitchPort);
+    motor = new Victor(ArmConstants.kMotorPort);
+    pot = new AnalogPotentiometer(ArmConstants.kPotentiometerPort, ArmConstants.kFullRange);
+    upperLimitSwitch = new DigitalInput(ArmConstants.kUpperLimitSwitchPort);
+    lowerLimitSwitch = new DigitalInput(ArmConstants.kLowerLimitSwitchPort);
   }
 
   public void close() {
@@ -38,7 +38,7 @@ public class Arm extends SubsystemBase {
   }
 
   public enum ArmState {
-    LOWER(Constants.ArmConstants.kLowerPosition), FEED(Constants.ArmConstants.kFeedPosition), UPPER(Constants.ArmConstants.kUpperPosition);
+    LOWER(ArmConstants.kLowerPosition), FEED(ArmConstants.kFeedPosition), UPPER(ArmConstants.kUpperPosition);
 
     private final double pos;
 
@@ -63,7 +63,7 @@ public class Arm extends SubsystemBase {
 
     double value = pot.get();
     double target = targetState.getPosition();
-    return Utils.inRange(value, target, Constants.ArmConstants.kPositionError);
+    return Utils.inRange(value, target, ArmConstants.kPositionError);
   }
 
   boolean atLimit(double speed) {
