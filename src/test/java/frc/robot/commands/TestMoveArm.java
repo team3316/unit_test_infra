@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.commandGroups.Intake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.ArmState;
 import frc.robot.subsystems.Arm.NoTargetException;
@@ -42,6 +43,14 @@ public class TestMoveArm extends TestCommands {
         assertEquals(ArmState.UPPER, m_arm.getTarget());
         runCommand(m_moveUpCommand);
         assertEquals(ArmState.UPPER, m_arm.getTarget());
+    }
+
+    @Test
+    public void cmdGroup() {
+        System.out.println("here");
+        Intake cmd = new Intake();
+        TestCommands.runCommandGroup(cmd, true);
+        while (!cmd.isFinished()) { }
     }
 
     @Test
