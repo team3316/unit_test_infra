@@ -51,6 +51,7 @@ public class TestMoveArm extends TestCommands {
         Intake cmd = new Intake();
         TestCommands.runCommandGroup(cmd, true);
         while (!cmd.isFinished()) { }
+        assertEquals(false, true);
     }
 
     @Test
