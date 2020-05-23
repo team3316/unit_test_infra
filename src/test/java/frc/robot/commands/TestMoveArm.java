@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Robot;
 import frc.robot.commands.commandGroups.Intake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.ArmState;
@@ -26,6 +27,7 @@ public class TestMoveArm extends TestCommands {
     @BeforeClass
     public static void initSubsystem() {
         m_arm = new Arm();
+        Robot.arm =  m_arm;
         m_moveUpCommand = new MoveArmUp(m_arm);
         m_moveDownCommand = new MoveArmDown(m_arm);
         m_moveCommand = new MoveArm(m_arm);
