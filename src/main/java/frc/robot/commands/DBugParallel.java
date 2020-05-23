@@ -23,6 +23,7 @@ public abstract class DBugParallel extends DBugCommand {
      */
     public DBugParallel(List<Supplier<CommandBase>> cmds) {
         if (cmds.size() <= 0) {
+            throw new IllegalArgumentException("Tried to initialize an empty parallel");
         } else {
             commands = List.copyOf(cmds);
             parallelsDict = new HashMap<>();
@@ -50,8 +51,6 @@ public abstract class DBugParallel extends DBugCommand {
      */
     protected void _start() {
         for (Supplier<CommandBase> sup : commands) {
-            System.out.println("SUP");
-            System.out.println(sup == null);
             CommandBase cmd = sup.get();
             cmd.schedule();
             parallelsDict.put(cmd, false);
@@ -82,9 +81,5 @@ public abstract class DBugParallel extends DBugCommand {
                 + commands.stream().map(supp -> supp.get().toString()).collect(Collectors.joining("\n\t"));
 
         return res;
-    }
-
-    public enum ParallelKind {
-        Race, Deadline, Wait;
     }
 }

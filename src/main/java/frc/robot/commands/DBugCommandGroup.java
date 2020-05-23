@@ -20,13 +20,14 @@ public abstract class DBugCommandGroup extends DBugCommand {
     private boolean isFinished;
 
     /**
-     * Constructor - shall be overridden when writing command groups
+     * Constructor - override when writing command groups
      */
     public DBugCommandGroup() {
     };
 
     /**
-     * @return The command group's representation of the commands that shall run -
+     * This method returns the initial group of methods that should run, including those that were already ran
+     * @return The command group's representation of the commands that need to run -
      *         in the hierarchy
      */
     public Queue<Supplier<CommandBase>> getStorage() {
@@ -34,7 +35,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
     }
 
     /**
-     * starts the sequence
+     * initializes the command sequence
      */
     @Override
     public synchronized void init() {
@@ -43,6 +44,10 @@ public abstract class DBugCommandGroup extends DBugCommand {
         queue = new ArrayDeque<>(queueStorage);
     }
 
+    /**
+     * The command group's execute method - runs periodically until the sequence is finished
+     * handles execution of commands
+     */
     @Override
     public void execute() {
         if (head == null) {
@@ -57,7 +62,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
     }
 
     /**
-     * runs the next parallel sequence of command that should run 
+     * Runs the next command that should run
      */
     private void _runNextSequential() {
         Supplier<CommandBase> sup_head = queue.poll();
@@ -71,7 +76,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
     }
 
     /**
-     * Adds a sequential based on one CommandBase.
+     * Adds a command to the sequence.
      * @param cmd - a new CommandBase to run sequentially - Passed as a supllier returning a CommandBase instant.
      *
      */
@@ -93,7 +98,6 @@ public abstract class DBugCommandGroup extends DBugCommand {
      * @param cmds - appends a sequence of CommandBases to run. Given as suppliers,
      *             each returning a new CommandBase instance. These will run
      *             in parallel until all are finished (or otherwise interrupted).
-     *
      */
     @SafeVarargs
     protected final synchronized void addWaitParallel(Supplier<CommandBase>... cmds) {
@@ -107,7 +111,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
     /**
      * @param cmds - appends a sequence of CommandBases to run. Given as suppliers,
      *             each returning a new CommandBase instance. These will run
-     *             in parallel until one is finished (or otherwise interrupted).
+     *             in parallel until one of them is finished (or otherwise interrupted).
      *
      */
     @SafeVarargs
@@ -139,22 +143,18 @@ public abstract class DBugCommandGroup extends DBugCommand {
     public final void fin(boolean interrupted) {
         if (interrupted) {
             this.head.cancel();
-        } else {
         }
+
+        isFinished = true;
         queue = new ArrayDeque<>();
     }
 
     /**
+     * This method indicates whether the command is finished or not
      * @return whether the command's end condition has been reached.
      */
     @Override
     public final boolean isFinished() {
         return isFinished;
-    }
-
-    public enum ParallelKind {
-        Race,
-        Deadline,
-        Wait;
     }
 }

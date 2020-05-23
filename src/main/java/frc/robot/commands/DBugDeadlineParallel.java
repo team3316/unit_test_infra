@@ -18,7 +18,8 @@ public class DBugDeadlineParallel extends DBugParallel {
     }
     
     /**
-     * runs the next parallel sequence of command that should run
+     * runs the next parallel sequence of commands that should run
+     * Modified since we need to save the parallel
      */
     protected void _start() {
         parallelsDict = new HashMap<>();

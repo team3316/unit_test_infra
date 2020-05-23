@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -22,11 +23,21 @@ public class DBugWaitParallel extends DBugParallel {
             }
         }
 
-        if (parallelsDict.entrySet().stream()
-                .anyMatch((entry) -> !entry.getKey().isScheduled() && !entry.getValue())) {
-            this.cancel();
-        } else if (parallelsDict.keySet().stream().allMatch(cmd -> !cmd.isScheduled())) {
-            this.isFinished = true;
+        /*
+         * Check if any of the commands isn't scheduled but hasn't finished, if this is the case, cancel the entire group
+         * then check if all are done 
+         */
+        boolean isDone = true;
+        for (Map.Entry<CommandBase,Boolean> entry : parallelsDict.entrySet()) {
+            boolean isCommandDone = entry.getValue();
+            if (entry.getKey().isScheduled()) {
+                isDone = false;
+            } else {
+                if (!isCommandDone) {
+                    this.cancel();
+                }
+            }
         }
+        isFinished = isDone;
     }
 }
