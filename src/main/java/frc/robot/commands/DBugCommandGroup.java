@@ -46,7 +46,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
     @Override
     public void execute() {
         if (head == null) {
-            isFinished = true;
+            this._runNextSequential();
         } else if (!head.isScheduled()) {
             if (head.isFinished()) {
                 this._runNextSequential();
@@ -60,10 +60,13 @@ public abstract class DBugCommandGroup extends DBugCommand {
      * runs the next parallel sequence of command that should run 
      */
     private void _runNextSequential() {
-        head = queue.poll().get();
+        Supplier<CommandBase> sup_head = queue.poll();
 
-        if (head != null) {
+        if (sup_head != null) {
+            head = sup_head.get();
             head.schedule();
+        } else {
+            this.isFinished = true;
         }
     }
 

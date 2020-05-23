@@ -24,7 +24,8 @@ public abstract class DBugParallel extends DBugCommand {
     public DBugParallel(List<Supplier<CommandBase>> cmds) {
         if (cmds.size() <= 0) {
         } else {
-            commands = cmds;
+            commands = List.copyOf(cmds);
+            parallelsDict = new HashMap<>();
         }
     }
 
@@ -48,9 +49,9 @@ public abstract class DBugParallel extends DBugCommand {
      * runs the next parallel sequence of command that should run
      */
     protected void _start() {
-        parallelsDict = new HashMap<>();
-
         for (Supplier<CommandBase> sup : commands) {
+            System.out.println("SUP");
+            System.out.println(sup == null);
             CommandBase cmd = sup.get();
             cmd.schedule();
             parallelsDict.put(cmd, false);
