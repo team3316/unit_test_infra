@@ -46,14 +46,13 @@ public class TestMoveArm extends TestCommands {
         runCommand(m_moveUpCommand);
         assertEquals(ArmState.UPPER, m_arm.getTarget());
     }
-
+    
     @Test
-    public void cmdGroup() {
-        System.out.println("here");
+    public void cmdGroup() throws NoTargetException {
+        m_arm.setTarget(ArmState.LOWER);
         Intake cmd = new Intake();
         TestCommands.runCommandGroup(cmd, true);
-        while (!cmd.isFinished()) { }
-        assertEquals(false, true);
+        assertEquals(ArmState.UPPER, m_arm.getTarget());
     }
 
     @Test
