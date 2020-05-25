@@ -35,12 +35,4 @@ public abstract class TestCommands {
         CommandScheduler.getInstance().disable();
         MockedRobotState.getInstance().disableRobot();
     }
-
-    protected static void runScheduler() {
-        MockedRobotState.getInstance().enableRobot();
-        CommandScheduler.getInstance().enable();
-        CommandScheduler.getInstance().run();
-        CommandScheduler.getInstance().disable();
-        MockedRobotState.getInstance().disableRobot();
-    }
 }
