@@ -44,14 +44,14 @@ public class TestTimeDrive extends TestCommands {
         assertFalse(m_timeDriveCommand.isFinished());
 
         when(timer.get()).thenReturn(0.5);
-        runScheduler();
+        Utils.runSchedualer(1);
         assertEquals(Math.pow(0.5, 2), m_leftMotor.get(), 0.1);
         assertEquals(Math.pow(0.5, 2), m_rightMotor.get(), 0.1);
 
         assertFalse(m_timeDriveCommand.isFinished());
 
         when(timer.get()).thenReturn(1.5);
-        runScheduler();
+        Utils.runSchedualer(1);
         assertEquals(0.0, m_leftMotor.get(), 0.0);
         assertEquals(0.0, m_rightMotor.get(), 0.0);
 
