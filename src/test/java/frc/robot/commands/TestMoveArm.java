@@ -60,7 +60,7 @@ public class TestMoveArm extends TestCommands {
     public void cmdGroup() throws NoTargetException {
         m_arm.setTarget(ArmState.LOWER);
         Intake cmd = new Intake();
-        TestCommands.runCommandGroup(cmd, true);
+        TestCommands.runCommand(cmd, true);
         assertEquals(ArmState.UPPER, m_arm.getTarget());
     }
 
