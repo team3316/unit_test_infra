@@ -36,8 +36,10 @@ public class DBugDeadlineParallel extends DBugParallel {
     public void execute() {
         super.execute();
 
-        if (deadline.hasFinished()) {
-            this.isFinished = true;
+        if (!this.wasCancelled()) {
+            if (deadline.hasFinished()) {
+                this.isFinished = true;
+            }
         }
     }
 }

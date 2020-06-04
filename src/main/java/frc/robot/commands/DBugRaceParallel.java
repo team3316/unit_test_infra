@@ -16,10 +16,12 @@ public class DBugRaceParallel extends DBugParallel {
     public void execute() {
         super.execute();
 
-        for (DBugCommand cmd : commands) {
-            if (cmd.hasFinished()) {
-                isFinished = true;
-                break;
+        if (!this.wasCancelled()) {
+            for (DBugCommand cmd : commands) {
+                if (cmd.hasFinished()) {
+                    isFinished = true;
+                    break;
+                }
             }
         }
     }

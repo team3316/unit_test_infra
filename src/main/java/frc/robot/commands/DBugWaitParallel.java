@@ -17,13 +17,15 @@ public class DBugWaitParallel extends DBugParallel {
         super.execute();
         
         //Check if all command are done - if so make isFinished true
-        boolean isDone = true;
-        for (DBugCommand cmd : commands) {
-            if (!cmd.hasFinished()) {
-                isDone = false;
+        if (!this.wasCancelled()) {
+            boolean isDone = true;
+            for (DBugCommand cmd : commands) {
+                if (!cmd.hasFinished()) {
+                    isDone = false;
+                }
             }
+    
+            isFinished = isDone;
         }
-
-        isFinished = isDone;
     }
 }
