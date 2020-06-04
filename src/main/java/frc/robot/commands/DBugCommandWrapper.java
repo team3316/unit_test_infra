@@ -1,24 +1,24 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * A command class which gets a command as an argumet ang creates a DBugCommand from it
  */
 public class DBugCommandWrapper extends DBugCommand {
 
-  CommandBase command;
+  Command command;
 
   /**
    * Initialise a command wrapper.
    * Note: this is the command that will be executed.
    * The wrapped command will NOT be scheduled
-   * @param command - the command to wrap
+   * @param m_moveUpCommand - the command to wrap
    */
-  public DBugCommandWrapper(CommandBase command) {
-    this.command = command;
-    addRequirements(command.getRequirements().toArray(new Subsystem[0]));
+  public DBugCommandWrapper(Command m_moveUpCommand) {
+    this.command = m_moveUpCommand;
+    addRequirements(m_moveUpCommand.getRequirements().toArray(new Subsystem[0]));
   }
 
   @Override
