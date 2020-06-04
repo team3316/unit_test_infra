@@ -7,6 +7,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
  */
 public abstract class DBugCommand extends CommandBase {
 
+  protected boolean wasCancelled = false;
+  protected boolean hasFinished = false;
+
   @Override
   public final void initialize() {
     init();
@@ -18,8 +21,28 @@ public abstract class DBugCommand extends CommandBase {
   public abstract void execute();
 
   @Override
-  public abstract boolean isFinished();
+  public final boolean isFinished() {
+    hasFinished = hasFinished || endCondition();
+    return endCondition();
+  }
 
+  public abstract boolean endCondition();
+
+  
+  @Override
+  public void cancel() {
+    super.cancel();
+    wasCancelled = true;
+  }
+  
+  public final boolean wasCancelled() {
+    return wasCancelled;
+  };
+  
+  public final boolean hasFinished() {
+    return hasFinished;
+  }
+  
   @Override
   public void end(boolean interrupted) {
     fin(interrupted);
