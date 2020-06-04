@@ -13,7 +13,6 @@ public abstract class DBugCommandGroup extends DBugCommand {
     private Queue<Supplier<DBugCommand>> queue = new ArrayDeque<>();
     private Queue<Supplier<DBugCommand>> queueStorage = new ArrayDeque<>();
     private DBugCommand head;
-    private boolean headHasFinished;
 
     private boolean canAdd = true;
     private boolean isFinished;
@@ -40,7 +39,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
     public synchronized void init() {
         canAdd = false;
         isFinished = false;
-        queueStorage = new ArrayDeque<>(queue);
+        queue = new ArrayDeque<>(queueStorage);
     }
 
     /**
@@ -52,10 +51,10 @@ public abstract class DBugCommandGroup extends DBugCommand {
         if (head == null) {
             this._runNextSequential();
         } else {
-            headHasFinished = headHasFinished || head.isFinished(); 
+             
             if (head.wasCancelled()) {
                 this.cancel();
-            } else if (headHasFinished) {
+            } else if (head.hasFinished()) {
                 this._runNextSequential();
             }
         }
@@ -70,7 +69,6 @@ public abstract class DBugCommandGroup extends DBugCommand {
         if (sup_head != null) {
             head = sup_head.get();
             head.schedule();
-            headHasFinished = false;
         } else {
             this.isFinished = true;
         }
