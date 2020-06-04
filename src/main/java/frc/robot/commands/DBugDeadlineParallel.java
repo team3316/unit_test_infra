@@ -1,19 +1,16 @@
 package frc.robot.commands;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
-
-import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /**
  * DBugCommandGroup
  */
 public class DBugDeadlineParallel extends DBugParallel {
     
-    private CommandBase deadline;
+    private DBugCommand deadline;
     
-    public DBugDeadlineParallel(List<Supplier<CommandBase>> cmds) {
+    public DBugDeadlineParallel(List<Supplier<DBugCommand>> cmds) {
         super(cmds);
     }
     
@@ -22,28 +19,24 @@ public class DBugDeadlineParallel extends DBugParallel {
      * Modified since we need to save the parallel
      */
     protected void _start() {
-        parallelsDict = new HashMap<>();
-
-        for (int i = 0; i < commands.size(); i++) {
-            CommandBase cmd = commands.get(i).get();
-            if (i == 0) deadline = cmd;
-            cmd.schedule();
-            parallelsDict.put(cmd, false);
+        for (int i = 0; i < commandSupppliers.size(); i++) {
+            Supplier<DBugCommand> supp = commandSupppliers.get(i);
+            
+            DBugCommand cmd = supp.get();
+            commands.add(cmd);
+            
+            // If this is the first command in the list - make it the deadline
+            if (i == 0) {
+                deadline = cmd;
+            }
         }
     }
 
     @Override
     public void execute() {
-        for (CommandBase cmd : parallelsDict.keySet()) {
-            if (cmd.isFinished()) {
-                parallelsDict.put(cmd, true);
-            }
-        }
+        super.execute();
 
-        if (parallelsDict.entrySet().stream()
-                .anyMatch((entry) -> !entry.getKey().isScheduled() && !entry.getValue())) {
-            this.cancel();
-        } else if (parallelsDict.get(deadline)) {
+        if (deadline.hasFinished()) {
             this.isFinished = true;
         }
     }

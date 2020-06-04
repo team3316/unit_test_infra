@@ -1,19 +1,16 @@
 package frc.robot.commands;
 
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /**
  * DBugCommandGroup
  */
 public abstract class DBugParallel extends DBugCommand {
-    protected List<Supplier<CommandBase>> commands;
-    protected Map<CommandBase, Boolean> parallelsDict;
+    protected List<Supplier<DBugCommand>> commandSupppliers;
+    protected List<DBugCommand> commands;
     protected boolean isFinished = false;
 
     /**
@@ -21,12 +18,12 @@ public abstract class DBugParallel extends DBugCommand {
      * 
      * @param args - commands to initialize in this parrallel group
      */
-    public DBugParallel(List<Supplier<CommandBase>> cmds) {
+    public DBugParallel(List<Supplier<DBugCommand>> cmds) {
         if (cmds.size() <= 0) {
             throw new IllegalArgumentException("Tried to initialize an empty parallel");
         } else {
-            commands = List.copyOf(cmds);
-            parallelsDict = new HashMap<>();
+            commands = new LinkedList<>();
+            commandSupppliers = List.copyOf(cmds);
         }
     }
 
@@ -34,8 +31,8 @@ public abstract class DBugParallel extends DBugCommand {
      * @return The command group's representation of the commands that shall run -
      *         in the hierarchy
      */
-    public List<Supplier<CommandBase>> getStorage() {
-        return this.commands;
+    public List<Supplier<DBugCommand>> getStorage() {
+        return this.commandSupppliers;
     }
 
     /**
@@ -47,13 +44,13 @@ public abstract class DBugParallel extends DBugCommand {
     }
 
     /**
-     * runs the next parallel sequence of command that should run
+     * runs the parallel sequence of command that should run
      */
     protected void _start() {
-        for (Supplier<CommandBase> sup : commands) {
-            CommandBase cmd = sup.get();
+        for (Supplier<DBugCommand> sup : commandSupppliers) {
+            DBugCommand cmd = sup.get();
             cmd.schedule();
-            parallelsDict.put(cmd, false);
+            commands.add(cmd);
         }
     }
 
@@ -61,7 +58,7 @@ public abstract class DBugParallel extends DBugCommand {
      * @return whether the command's end condition has been reached.
      */
     @Override
-    public final boolean isFinished() {
+    public final boolean endCondition() {
         return isFinished;
     }
 
@@ -72,14 +69,24 @@ public abstract class DBugParallel extends DBugCommand {
      */
     @Override
     protected void fin(boolean interrupted) {
-        parallelsDict.keySet().stream().filter(cmd -> cmd.isScheduled()).forEach(cmd -> cmd.cancel());
+        commands.stream().filter(cmd -> cmd.isScheduled()).forEach(cmd -> cmd.cancel());
     }
 
     @Override
     public String toString() {
         String res = this.getClass().getName() + ":\n\t"
-                + commands.stream().map(supp -> supp.get().toString()).collect(Collectors.joining("\n\t"));
+                + commandSupppliers.stream().map(supp -> supp.get().toString()).collect(Collectors.joining("\n\t"));
 
         return res;
+    }
+
+    /**
+     * Chack if any of the commands has been cancelled - if so, cancel the sequence
+     */
+    @Override
+    public void execute() {
+        if (commands.stream().anyMatch((cmd) -> cmd.wasCancelled())) {
+            this.cancel();
+        }
     }
 }

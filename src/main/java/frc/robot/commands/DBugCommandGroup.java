@@ -6,15 +6,14 @@ import java.util.List;
 import java.util.Queue;
 import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-
 /**
  * DBugCommandGroup
  */
 public abstract class DBugCommandGroup extends DBugCommand {
-    private Queue<Supplier<CommandBase>> queue = new ArrayDeque<>();
-    private Queue<Supplier<CommandBase>> queueStorage = new ArrayDeque<>();
-    private CommandBase head;
+    private Queue<Supplier<DBugCommand>> queue = new ArrayDeque<>();
+    private Queue<Supplier<DBugCommand>> queueStorage = new ArrayDeque<>();
+    private DBugCommand head;
+    private boolean headHasFinished;
 
     private boolean canAdd = true;
     private boolean isFinished;
@@ -30,7 +29,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
      * @return The command group's representation of the commands that need to run -
      *         in the hierarchy
      */
-    public Queue<Supplier<CommandBase>> getStorage() {
+    public Queue<Supplier<DBugCommand>> getStorage() {
         return this.queueStorage;
     }
 
@@ -41,7 +40,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
     public synchronized void init() {
         canAdd = false;
         isFinished = false;
-        queue = new ArrayDeque<>(queueStorage);
+        queueStorage = new ArrayDeque<>(queue);
     }
 
     /**
@@ -52,11 +51,12 @@ public abstract class DBugCommandGroup extends DBugCommand {
     public void execute() {
         if (head == null) {
             this._runNextSequential();
-        } else if (!head.isScheduled()) {
-            if (head.isFinished()) {
-                this._runNextSequential();
-            } else {
+        } else {
+            headHasFinished = headHasFinished || head.isFinished(); 
+            if (head.wasCancelled()) {
                 this.cancel();
+            } else if (headHasFinished) {
+                this._runNextSequential();
             }
         }
     }
@@ -65,11 +65,12 @@ public abstract class DBugCommandGroup extends DBugCommand {
      * Runs the next command that should run
      */
     private void _runNextSequential() {
-        Supplier<CommandBase> sup_head = queue.poll();
+        Supplier<DBugCommand> sup_head = queue.poll();
 
         if (sup_head != null) {
             head = sup_head.get();
             head.schedule();
+            headHasFinished = false;
         } else {
             this.isFinished = true;
         }
@@ -80,7 +81,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
      * @param cmd - a new CommandBase to run sequentially - Passed as a supllier returning a CommandBase instant.
      *
      */
-    protected final synchronized void add(Supplier<CommandBase> cmd) {
+    protected final synchronized void add(Supplier<DBugCommand> cmd) {
 
         if (canAdd) {
             queueStorage.add(cmd);
@@ -100,7 +101,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
      *             in parallel until all are finished (or otherwise interrupted).
      */
     @SafeVarargs
-    protected final synchronized void addWaitParallel(Supplier<CommandBase>... cmds) {
+    protected final synchronized void addWaitParallel(Supplier<DBugCommand>... cmds) {
         if (cmds.length <= 0) {
             throw new IllegalArgumentException("Tried to initialize an empty parallel");
         }
@@ -115,7 +116,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
      *
      */
     @SafeVarargs
-    protected final synchronized void addRaceParallel(Supplier<CommandBase>... cmds) {
+    protected final synchronized void addRaceParallel(Supplier<DBugCommand>... cmds) {
         if (cmds.length <= 0) {
             throw new IllegalArgumentException("Tried to initialize an empty parallel");
         }
@@ -129,8 +130,8 @@ public abstract class DBugCommandGroup extends DBugCommand {
      *
      */
     @SafeVarargs
-    protected final synchronized void addDeadlineParallel(Supplier<CommandBase> deadline, Supplier<CommandBase>... cmds) {
-        List<Supplier<CommandBase>> list = Arrays.asList(cmds);
+    protected final synchronized void addDeadlineParallel(Supplier<DBugCommand> deadline, Supplier<DBugCommand>... cmds) {
+        List<Supplier<DBugCommand>> list = Arrays.asList(cmds);
         list.add(0, deadline);
         this.add(() -> new DBugDeadlineParallel(list));
     }
@@ -145,7 +146,6 @@ public abstract class DBugCommandGroup extends DBugCommand {
             this.head.cancel();
         }
 
-        isFinished = true;
         queue = new ArrayDeque<>();
     }
 
@@ -154,7 +154,7 @@ public abstract class DBugCommandGroup extends DBugCommand {
      * @return whether the command's end condition has been reached.
      */
     @Override
-    public final boolean isFinished() {
+    public final boolean endCondition() {
         return isFinished;
     }
 }
