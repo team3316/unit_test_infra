@@ -46,6 +46,15 @@ public class TestMoveArm extends TestCommands {
         runCommand(m_moveUpCommand);
         assertEquals(ArmState.UPPER, m_arm.getTarget());
     }
+
+    @Test
+    public void testWrapper() throws NoTargetException {
+        m_arm.setTarget(ArmState.FEED);
+        runCommand(new DBugCommandWrapper(m_moveUpCommand));
+        assertEquals(ArmState.UPPER, m_arm.getTarget());
+        runCommand(new DBugCommandWrapper(m_moveDownCommand));
+        assertEquals(ArmState.FEED, m_arm.getTarget());
+    }
     
     @Test
     public void cmdGroup() throws NoTargetException {
