@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Utils;
+import frc.robot.Util.DBugTalon;
 import frc.robot.Util.InvalidStateException;
 
 public class Flywheel extends SubsystemBase {
@@ -25,17 +26,21 @@ public class Flywheel extends SubsystemBase {
 
     }
 
-    private WPI_TalonSRX _motor;
+    private DBugTalon _motor;
     private FlywheelStates _target;
 
     public Flywheel() {
-        this._motor = new WPI_TalonSRX(2);
+        this._motor = new DBugTalon(2);
         this._target = FlywheelStates.NONE;
+
+      this._motor.setupPIDF(2, 0, 24, 0.1);
+      this._motor.setInverted(true);
+      this._motor.setSensorPhase(false);
     }
 
     public void setState(FlywheelStates state) throws InvalidStateException {
         if (state == FlywheelStates.INTERMIDIET) throw new InvalidStateException();
-        else if (state == this.getState() || state == this.getTarget()) throw new InvalidStateException();
+        else if (state == this.getState() || state == this.getTarget()) return;
         this._motor.set(ControlMode.Velocity, state._vel);
         this._target = state;
     }
