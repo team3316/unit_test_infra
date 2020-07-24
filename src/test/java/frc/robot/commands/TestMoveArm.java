@@ -3,13 +3,14 @@ package frc.robot.commands;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
 import frc.robot.commands.commandGroups.Intake;
@@ -74,7 +75,7 @@ public class TestMoveArm extends TestCommands {
 
     @Test
     public void testMoveArm() {
-        Victor motor = (Victor) Utils.GetPrivate(m_arm, "motor");
+        WPI_VictorSPX motor = (WPI_VictorSPX) Utils.GetPrivate(m_arm, "motor");
         AnalogPotentiometer mockedPot = (AnalogPotentiometer) Utils.ReflectAndSpy(m_arm, "pot");
         DigitalInput mockedUpperLimitSwitch = (DigitalInput) Utils.ReflectAndSpy(m_arm, "upperLimitSwitch");
 
