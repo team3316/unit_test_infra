@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -53,6 +55,12 @@ public class TestFlywheel {
     public void testSetVelocity() throws InvalidStateException {
       _flywheel.setState(FlywheelStates.SHOOT);
       assertEquals(_flywheel.getVelocity(), FlywheelStates.SHOOT.getVel(), 0.01);
+    }
+
+    @Test
+    public void setDistanceTest() {
+      _motor.set(ControlMode.Position, 245);
+      assertEquals(_motor.getDistance(), 245, 0.1);
     }
 
 }

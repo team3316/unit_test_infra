@@ -36,6 +36,7 @@ public class Flywheel extends SubsystemBase {
       this._motor.setupPIDF(2, 0, 24, 0.1);
       this._motor.setInverted(true);
       this._motor.setSensorPhase(false);
+      this._motor.setDistancePerRevolution(4 / 256, 1024);
     }
 
     public void setState(FlywheelStates state) throws InvalidStateException {
