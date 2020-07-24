@@ -1,7 +1,12 @@
 package frc.robot.subsystems;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -9,13 +14,12 @@ import org.junit.Test;
 
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Victor;
 import frc.utils.Utils;
 
 
 public class TestArm {
     static Arm m_arm;
-    static Victor m_motor;
+    static WPI_VictorSPX m_motor;
     static AnalogPotentiometer m_pot;
     static DigitalInput m_upperLimitSwitch;
     static DigitalInput m_lowerLimitSwitch;
@@ -23,7 +27,7 @@ public class TestArm {
     @BeforeClass
     public static void initSubsystem() {
         m_arm = new Arm();
-        m_motor = (Victor) Utils.GetPrivate(m_arm, "motor");
+        m_motor = (WPI_VictorSPX) Utils.GetPrivate(m_arm, "motor");
         m_pot = (AnalogPotentiometer) Utils.ReflectAndSpy(m_arm, "pot");
         m_upperLimitSwitch = (DigitalInput) Utils.ReflectAndSpy(m_arm, "upperLimitSwitch");
         m_lowerLimitSwitch = (DigitalInput) Utils.ReflectAndSpy(m_arm, "lowerLimitSwitch");

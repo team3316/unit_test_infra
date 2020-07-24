@@ -7,9 +7,10 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Utils;
 import frc.robot.Constants.ArmConstants;
@@ -18,20 +19,20 @@ import frc.robot.Constants.ArmConstants;
  * An example subsystem.  You can replace me with your own Subsystem.
  */
 public class Arm extends SubsystemBase {
-  private Victor motor;
+  private WPI_VictorSPX motor;
   private AnalogPotentiometer pot;
   private DigitalInput upperLimitSwitch, lowerLimitSwitch;
   private ArmState targetState;
   
   public Arm() {
-    motor = new Victor(ArmConstants.kMotorPort);
+    motor = new WPI_VictorSPX(ArmConstants.kMotorPort);
     pot = new AnalogPotentiometer(ArmConstants.kPotentiometerPort, ArmConstants.kFullRange);
     upperLimitSwitch = new DigitalInput(ArmConstants.kUpperLimitSwitchPort);
     lowerLimitSwitch = new DigitalInput(ArmConstants.kLowerLimitSwitchPort);
   }
 
   public void close() {
-    motor.close();
+    //motor.close(); so apperantly you dont need to close the object when you use the WPI one 
     pot.close();
     upperLimitSwitch.close();
     lowerLimitSwitch.close();
