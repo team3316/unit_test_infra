@@ -1,12 +1,13 @@
 package frc.robot.Util;
 
-
 import java.util.Objects;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.hal.SimDevice;
+import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
@@ -26,6 +27,8 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
   /**
   * Testing stuff
   */
+  private SimDevice _simMotor;
+  private SimDouble _simDemand;
   private double _demand;
   private boolean _isSimulation;
 
@@ -42,6 +45,11 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
 
     this._isSimulation = RobotBase.isSimulation();
     this._demand = 0.0;
+
+    if (this._isSimulation) {
+      this._simMotor = SimDevice.create("Dbug Talon", deviceNumber);
+      this._simDemand = this._simMotor.createDouble("Motor Demand", false, 0.0);
+    }
   }
 
   /**
@@ -160,14 +168,13 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
 
   /**
    * Returns the velocity of the encoder that's connected to the Talon. This returns the value
-   * as a *double*, since velocity isn't discrete like native units. In order to get the encoder's
-   * raw rate of change, use the {@link DBugTalon#getEncoderRate()} method instead.
-   * @return The distance that has been passed by the encoder, calculated by the dpr * rawValue.
+   * as a *double*, since velocity isn't discrete like native units. 
+   * @return The velocity in raw units for 100ms.
    */
   @Override
   public double getVelocity() {
     if (this._isSimulation) return this._demand;
-    return 10.0 * this._distPerPulse * this.getEncoderRate();
+    return this.getSelectedSensorVelocity();
   }
 
   /**
@@ -272,7 +279,10 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
    */
   @Override
   public void set (ControlMode mode, double outputValue) {
-    if (this._isSimulation) this._demand = outputValue;
+    if (this._isSimulation) {
+      this._simDemand.set(outputValue);
+      this._demand = outputValue;
+    }
     switch (mode) {
       case Position:
         super.set(mode, this.convertDistanceToPulses(outputValue));
@@ -289,4 +299,20 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
     else return super.getSelectedSensorVelocity(slot);
   }
 
+  @Override
+  public double get() {
+    if (this._isSimulation) return this._demand;
+    switch (this.getControlMode()) {
+      case Position:
+        return this.getDistance();
+      case Velocity:
+        return this.getVelocity();
+      case PercentOutput:
+        return super.get();
+      case Current:
+        return this.getStatorCurrent();
+      default:
+        return super.get();
+    }
+  }
 }
