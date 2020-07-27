@@ -3,7 +3,9 @@ package frc.robot.Util;
 import java.util.Objects;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.hal.SimDevice;
@@ -31,6 +33,7 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
   private SimDouble _simDemand;
   private double _demand;
   private boolean _isSimulation;
+  private IMotorController _masterToFollow;
 
   /**
    * Constructs a new DBugTalon and configures defaults.
@@ -44,9 +47,10 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
     this.configure();
 
     this._isSimulation = RobotBase.isSimulation();
-    this._demand = 0.0;
 
     if (this._isSimulation) {
+      this._demand = 0.0;
+      this._masterToFollow = null;
       this._simMotor = SimDevice.create("Dbug Talon", deviceNumber);
       this._simDemand = this._simMotor.createDouble("Motor Demand", false, 0.0);
     }
@@ -300,7 +304,20 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
   }
 
   @Override
+  public double getMotorOutputPercent() {
+    if (this._isSimulation) return this._demand;
+    return super.getMotorOutputPercent();
+  }
+
+  @Override
+  public void follow(IMotorController masterToFollow) {
+    if (this._isSimulation) this._masterToFollow = masterToFollow;
+    else super.follow(masterToFollow);
+	}
+
+  @Override
   public double get() {
+    if (this._masterToFollow != null) return this._masterToFollow.getMotorOutputPercent();
     if (this._isSimulation) return this._demand;
     switch (this.getControlMode()) {
       case Position:
