@@ -25,28 +25,30 @@ public class Flywheel extends SubsystemBase {
 
     }
 
-    private DBugTalon _motor;
+    private DBugTalon _motor1, _motor2;
     private FlywheelStates _target;
 
     public Flywheel() {
-        this._motor = new DBugTalon(2);
+        this._motor1 = new DBugTalon(2);
+        this._motor2 = new DBugTalon(3);
+        this._motor2.follow(this._motor1);
         this._target = FlywheelStates.NONE;
 
-        this._motor.setupPIDF(2, 0, 24, 0.1);
-        this._motor.setInverted(true);
-        this._motor.setSensorPhase(false);
-        this._motor.setDistancePerRevolution(4 / 256, 1024);
+        this._motor1.setupPIDF(2, 0, 24, 0.1);
+        this._motor1.setInverted(true);
+        this._motor1.setSensorPhase(false);
+        this._motor1.setDistancePerRevolution(4 / 256, 1024);
     }
 
     public void setState(FlywheelStates state) throws InvalidStateException {
         if (state == FlywheelStates.INTERMIDIET) throw new InvalidStateException();
         else if (state == this.getState() || state == this.getTarget()) return;
-        this._motor.set(ControlMode.Velocity, state._vel);
+        this._motor1.set(ControlMode.Velocity, state._vel);
         this._target = state;
     }
 
     public FlywheelStates getState() {
-        double vel = this._motor.getSelectedSensorVelocity();
+        double vel = this._motor1.getSelectedSensorVelocity();
         if (Utils.inRange(vel, FlywheelStates.NONE.getVel(), 10)) return FlywheelStates.NONE;
         else if (Utils.inRange(vel, FlywheelStates.LOWER_SHOOT.getVel(), 10)) return FlywheelStates.LOWER_SHOOT;
         else if (Utils.inRange(vel, FlywheelStates.SHOOT.getVel(), 10)) return FlywheelStates.SHOOT;
@@ -57,17 +59,8 @@ public class Flywheel extends SubsystemBase {
         return this._target;
     }
 
-    /**
-     * Set the velocity
-     * @param vel
-     *  Position change for every 100ms
-     */
-    public void setVelocity(double vel) {
-        this._motor.set(ControlMode.Velocity, vel);
-    }
-
     public double get() {
-        return this._motor.get();
+        return this._motor1.get();
     }
 
 }

@@ -16,25 +16,26 @@ import frc.utils.Utils;
 public class TestFlywheel {
     
     static Flywheel _flywheel;
-    static DBugTalon _motor;
+    public static DBugTalon _motor1, _motor2;
 
     @BeforeClass
     public static void init() {
         _flywheel = new Flywheel();
-        _motor = (DBugTalon) Utils.ReflectAndSpy(_flywheel, "_motor");
+        _motor1 = (DBugTalon) Utils.ReflectAndSpy(_flywheel, "_motor1");
+        _motor2 = (DBugTalon) Utils.ReflectAndSpy(_flywheel, "_motor2");
     }
 
     @Test
     public void testSpeedChange() {
-        when(_motor.getSelectedSensorVelocity()).thenReturn((int) (FlywheelStates.SHOOT.getVel() - 5));
+        when(_motor1.getSelectedSensorVelocity()).thenReturn((int) (FlywheelStates.SHOOT.getVel() - 5));
 
         assertEquals(_flywheel.getState(), FlywheelStates.SHOOT);
 
-        when(_motor.getSelectedSensorVelocity()).thenReturn((int) (FlywheelStates.LOWER_SHOOT.getVel() + 7));
+        when(_motor1.getSelectedSensorVelocity()).thenReturn((int) (FlywheelStates.LOWER_SHOOT.getVel() + 7));
 
         assertEquals(_flywheel.getState(), FlywheelStates.LOWER_SHOOT);
 
-        when(_motor.getSelectedSensorVelocity()).thenReturn((int) (FlywheelStates.LOWER_SHOOT.getVel() + 12));
+        when(_motor1.getSelectedSensorVelocity()).thenReturn((int) (FlywheelStates.LOWER_SHOOT.getVel() + 12));
 
         assertEquals(_flywheel.getState(), FlywheelStates.INTERMIDIET);
     }
@@ -59,8 +60,7 @@ public class TestFlywheel {
 
     @Test
     public void setDistanceTest() {
-      _motor.set(ControlMode.Position, 245);
-      assertEquals(_motor.getDistance(), 245, 0.1);
+      _motor1.set(ControlMode.Position, 245);
+      assertEquals(_motor1.getDistance(), 245, 0.1);
     }
-
 }
