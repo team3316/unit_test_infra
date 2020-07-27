@@ -54,7 +54,7 @@ public class TestFlywheel {
     @Test
     public void testSetVelocity() throws InvalidStateException {
       _flywheel.setState(FlywheelStates.SHOOT);
-      assertEquals(_flywheel.getVelocity(), FlywheelStates.SHOOT.getVel(), 0.01);
+      assertEquals(_flywheel.get(), FlywheelStates.SHOOT.getVel(), 0.01);
     }
 
     @Test
