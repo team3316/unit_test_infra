@@ -178,7 +178,7 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
   @Override
   public double getVelocity() {
     if (this._isSimulation) return this._demand;
-    return this.getSelectedSensorVelocity();
+    return this.getSelectedSensorVelocity(1);
   }
 
   /**
@@ -284,8 +284,8 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
   @Override
   public void set (ControlMode mode, double outputValue) {
     if (this._isSimulation) {
-      this._simDemand.set(outputValue);
       this._demand = outputValue;
+      this._simDemand.set(outputValue);
     }
     switch (mode) {
       case Position:

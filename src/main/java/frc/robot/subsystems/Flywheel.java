@@ -48,7 +48,7 @@ public class Flywheel extends SubsystemBase {
     }
 
     public FlywheelStates getState() {
-        double vel = this._motor1.getSelectedSensorVelocity();
+        double vel = this._motor1.get();
         if (Utils.inRange(vel, FlywheelStates.NONE.getVel(), 10)) return FlywheelStates.NONE;
         else if (Utils.inRange(vel, FlywheelStates.LOWER_SHOOT.getVel(), 10)) return FlywheelStates.LOWER_SHOOT;
         else if (Utils.inRange(vel, FlywheelStates.SHOOT.getVel(), 10)) return FlywheelStates.SHOOT;

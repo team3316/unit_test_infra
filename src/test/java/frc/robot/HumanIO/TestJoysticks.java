@@ -30,7 +30,4 @@ public class TestJoysticks {
 
         assertEquals(ArmState.FEED, Robot.arm.getTarget());
     }
-
-
-
 }

@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import frc.robot.Util.DBugTalon;
 import frc.robot.Util.InvalidStateException;
@@ -26,20 +27,10 @@ public class TestFlywheel {
     }
 
     @Test
-    public void testSpeedChange() {
-        when(_motor1.getSelectedSensorVelocity()).thenReturn((int) (FlywheelStates.SHOOT.getVel() - 5));
-
-        assertEquals(_flywheel.getState(), FlywheelStates.SHOOT);
-
-        when(_motor1.getSelectedSensorVelocity()).thenReturn((int) (FlywheelStates.LOWER_SHOOT.getVel() + 7));
-
-        assertEquals(_flywheel.getState(), FlywheelStates.LOWER_SHOOT);
-
-        when(_motor1.getSelectedSensorVelocity()).thenReturn((int) (FlywheelStates.LOWER_SHOOT.getVel() + 12));
-
-        assertEquals(_flywheel.getState(), FlywheelStates.INTERMIDIET);
+    public void testSetState() throws InvalidStateException {
+      _flywheel.setState(FlywheelStates.LOWER_SHOOT);
+      assertEquals(FlywheelStates.LOWER_SHOOT, _flywheel.getState());
     }
-
     @Test (expected = InvalidStateException.class)
     public void testSetSpeedException() throws InvalidStateException {
       _flywheel.setState(FlywheelStates.INTERMIDIET);
@@ -47,9 +38,9 @@ public class TestFlywheel {
 
     @Test
     public void testAtTarget() throws InvalidStateException {
-        _flywheel.setState(FlywheelStates.LOWER_SHOOT);
+        _flywheel.setState(FlywheelStates.SHOOT);
 
-        assertEquals(FlywheelStates.LOWER_SHOOT, _flywheel.getTarget());
+        assertEquals(FlywheelStates.SHOOT, _flywheel.getTarget());
     }
 
     @Test
@@ -62,5 +53,22 @@ public class TestFlywheel {
     public void setDistanceTest() {
       _motor1.set(ControlMode.Position, 245);
       assertEquals(_motor1.getDistance(), 245, 0.1);
+    }
+
+    @Test
+    public void testSpeedChange() {
+        when(_motor1.get()).thenReturn((double) (FlywheelStates.SHOOT.getVel() - 5));
+
+        assertEquals(_flywheel.getState(), FlywheelStates.SHOOT);
+
+        when(_motor1.get()).thenReturn((double) (FlywheelStates.LOWER_SHOOT.getVel() + 7));
+
+        assertEquals(_flywheel.getState(), FlywheelStates.LOWER_SHOOT);
+
+        when(_motor1.get()).thenReturn((double) (FlywheelStates.LOWER_SHOOT.getVel() + 12));
+
+        assertEquals(_flywheel.getState(), FlywheelStates.INTERMIDIET);
+
+        Mockito.reset(_motor1);
     }
 }
