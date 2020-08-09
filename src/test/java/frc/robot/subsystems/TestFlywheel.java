@@ -92,4 +92,13 @@ public class TestFlywheel {
       _testMotor.set(ControlMode.Position, 0.7);
       assertEquals(0.7, _testMotor.get(), 0.01);
     }
+
+    @Test
+    public void testFollow() {
+      DBugSparkMax _follower = new DBugSparkMax(254);
+      _follower.follow(_testMotor);
+      _testMotor.set(ControlMode.PercentOutput, 0.254);
+      assertEquals(0.254, _follower.get(), 0.01);
+      _follower.close();
+    }
 }
