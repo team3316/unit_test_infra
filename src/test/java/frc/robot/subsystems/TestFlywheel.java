@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import frc.robot.Util.DBugSparkMax;
 import frc.robot.Util.DBugTalon;
 import frc.robot.Util.InvalidStateException;
 import frc.robot.subsystems.Flywheel.FlywheelStates;
@@ -17,13 +18,15 @@ import frc.utils.Utils;
 public class TestFlywheel {
     
     static Flywheel _flywheel;
-    public static DBugTalon _motor1, _motor2;
+    static DBugTalon _motor1, _motor2;
+    static DBugSparkMax _testMotor;
 
     @BeforeClass
     public static void init() {
         _flywheel = new Flywheel();
         _motor1 = (DBugTalon) Utils.ReflectAndSpy(_flywheel, "_motor1");
         _motor2 = (DBugTalon) Utils.ReflectAndSpy(_flywheel, "_motor2");
+        _testMotor = new DBugSparkMax(24);
     }
 
     @Test
@@ -70,5 +73,23 @@ public class TestFlywheel {
         assertEquals(_flywheel.getState(), FlywheelStates.INTERMIDIET);
 
         Mockito.reset(_motor1);
+    }
+
+    @Test
+    public void testSetDistance() {
+      _testMotor.set(ControlMode.Position, 254);
+      assertEquals(254, _testMotor.get(), 0.01);
+    }
+
+    @Test
+    public void testSetVelocitySpark() {
+      _testMotor.set(ControlMode.Velocity, 3316);
+      assertEquals(3316, _testMotor.get(), 0.01);
+    }
+
+    @Test
+    public void testSetPrecent() {
+      _testMotor.set(ControlMode.Position, 0.7);
+      assertEquals(0.7, _testMotor.get(), 0.01);
     }
 }
