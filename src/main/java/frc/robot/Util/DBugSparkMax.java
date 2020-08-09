@@ -2,9 +2,9 @@
 package frc.robot.Util;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANEncoder;
+import com.revrobotics.CANError;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
@@ -25,7 +25,7 @@ public class DBugSparkMax extends CANSparkMax implements DBugMotorController {
   private SimDouble _simDemand;
   private double _demand;
   private boolean _isSimulation;
-  private IMotorController _masterToFollow;
+  private CANSparkMax _masterToFollow;
   private ControlMode _mode;
 
   /**
@@ -162,8 +162,14 @@ public class DBugSparkMax extends CANSparkMax implements DBugMotorController {
     }
   }
 
+  @Override
+  public CANError follow(CANSparkMax leader) {
+    if (this._isSimulation) this._masterToFollow = leader;
+		return super.follow(leader);
+	}
+
   public double get() {
-    if (this._masterToFollow != null) return this._masterToFollow.getMotorOutputPercent();
+    if (this._masterToFollow != null) return this._masterToFollow.get();
     if (this._isSimulation) return this._demand;
     switch (this._mode) {
       case Position:
