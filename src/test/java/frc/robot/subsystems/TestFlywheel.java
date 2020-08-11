@@ -25,7 +25,6 @@ public class TestFlywheel {
     public static void init() {
         _flywheel = new Flywheel();
         _motor1 = (DBugTalon) Utils.ReflectAndSpy(_flywheel, "_motor1");
-        _motor2 = (DBugTalon) Utils.ReflectAndSpy(_flywheel, "_motor2");
         _testMotor = new DBugSparkMax(24);
     }
 
@@ -94,11 +93,19 @@ public class TestFlywheel {
     }
 
     @Test
-    public void testFollow() {
+    public void testFollowNeo() {
       DBugSparkMax _follower = new DBugSparkMax(254);
       _follower.follow(_testMotor);
       _testMotor.set(ControlMode.PercentOutput, 0.254);
       assertEquals(0.254, _follower.get(), 0.01);
       _follower.close();
+    }
+
+    @Test
+    public void testFollowTalon() {
+      DBugTalon _follower = new DBugTalon(5135);
+      _follower.follow(_motor1);
+      _motor1.set(ControlMode.PercentOutput, 0.5135);
+      assertEquals(0.5135, _follower.get(), 0.01);
     }
 }
