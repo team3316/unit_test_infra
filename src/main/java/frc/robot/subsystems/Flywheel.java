@@ -29,8 +29,8 @@ public class Flywheel extends SubsystemBase {
     private FlywheelStates _target;
 
     public Flywheel() {
-        this._motor1 = new DBugTalon(2);
-        this._motor2 = new DBugTalon(3);
+        this._motor1 = new DBugTalon(4);
+        this._motor2 = new DBugTalon(5);
         this._motor2.follow(this._motor1);
         this._target = FlywheelStates.NONE;
 
@@ -48,7 +48,7 @@ public class Flywheel extends SubsystemBase {
     }
 
     public FlywheelStates getState() {
-        double vel = this._motor1.get();
+        double vel = this._motor1.getVelocity();
         if (Utils.inRange(vel, FlywheelStates.NONE.getVel(), 10)) return FlywheelStates.NONE;
         else if (Utils.inRange(vel, FlywheelStates.LOWER_SHOOT.getVel(), 10)) return FlywheelStates.LOWER_SHOOT;
         else if (Utils.inRange(vel, FlywheelStates.SHOOT.getVel(), 10)) return FlywheelStates.SHOOT;
@@ -59,8 +59,8 @@ public class Flywheel extends SubsystemBase {
         return this._target;
     }
 
-    public double get() {
-        return this._motor1.get();
+    public double getDemand() {
+        return this._motor1.getDemand();
     }
 
 }
