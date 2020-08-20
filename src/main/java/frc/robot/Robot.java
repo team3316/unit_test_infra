@@ -8,11 +8,14 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.HumanIO.Joysticks;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.Flywheel.FlywheelStates;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -28,6 +31,7 @@ public class Robot extends TimedRobot {
 
   /* Subsystems */
   public static Arm arm;
+  public static Flywheel flywheel;
   public static Drivetrain drivetrain;
   
   /* This is suppoes to simulate an intake roller without the need to setup a subsystem */
@@ -47,6 +51,7 @@ public class Robot extends TimedRobot {
     //m_robotContainer = new RobotContainer();
 
     arm = new Arm();
+    flywheel = new Flywheel();
     drivetrain = new Drivetrain();
 
     intakeRollers = false;
@@ -69,6 +74,8 @@ public class Robot extends TimedRobot {
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
+    SmartDashboard.putBoolean("Is in shoot", FlywheelStates.SHOOT == flywheel.getState());
+    //SmartDashboard.putNumber("Velocity", flywheel.getDemand());
     CommandScheduler.getInstance().run();
   }
 

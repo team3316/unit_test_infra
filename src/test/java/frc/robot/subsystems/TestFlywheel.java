@@ -31,7 +31,7 @@ public class TestFlywheel {
     @Test
     public void testSetState() throws InvalidStateException {
       _flywheel.setState(FlywheelStates.LOWER_SHOOT);
-      assertEquals(FlywheelStates.LOWER_SHOOT, _flywheel.getState());
+      assertEquals(FlywheelStates.LOWER_SHOOT.getVel(), _motor1.getDemand(), 0.01);
     }
     @Test (expected = InvalidStateException.class)
     public void testSetSpeedException() throws InvalidStateException {
@@ -48,26 +48,26 @@ public class TestFlywheel {
     @Test
     public void testSetVelocity() throws InvalidStateException {
       _flywheel.setState(FlywheelStates.SHOOT);
-      assertEquals(_flywheel.get(), FlywheelStates.SHOOT.getVel(), 0.01);
+      assertEquals(_flywheel.getDemand(), FlywheelStates.SHOOT.getVel(), 0.01);
     }
 
     @Test
     public void setDistanceTest() {
-      _motor1.set(ControlMode.Position, 245);
+      _motor1.setDistance(245);
       assertEquals(_motor1.getDistance(), 245, 0.1);
     }
 
     @Test
     public void testSpeedChange() {
-        when(_motor1.get()).thenReturn((double) (FlywheelStates.SHOOT.getVel() - 5));
+        when(_motor1.getVelocity()).thenReturn((double) (FlywheelStates.SHOOT.getVel() - 5));
 
         assertEquals(_flywheel.getState(), FlywheelStates.SHOOT);
 
-        when(_motor1.get()).thenReturn((double) (FlywheelStates.LOWER_SHOOT.getVel() + 7));
+        when(_motor1.getVelocity()).thenReturn((double) (FlywheelStates.LOWER_SHOOT.getVel() + 7));
 
         assertEquals(_flywheel.getState(), FlywheelStates.LOWER_SHOOT);
 
-        when(_motor1.get()).thenReturn((double) (FlywheelStates.LOWER_SHOOT.getVel() + 12));
+        when(_motor1.getVelocity()).thenReturn((double) (FlywheelStates.LOWER_SHOOT.getVel() + 12));
 
         assertEquals(_flywheel.getState(), FlywheelStates.INTERMIDIET);
 
@@ -90,22 +90,5 @@ public class TestFlywheel {
     public void testSetPrecent() {
       _testMotor.set(ControlMode.Position, 0.7);
       assertEquals(0.7, _testMotor.get(), 0.01);
-    }
-
-    @Test
-    public void testFollowNeo() {
-      DBugSparkMax _follower = new DBugSparkMax(254);
-      _follower.follow(_testMotor);
-      _testMotor.set(ControlMode.PercentOutput, 0.254);
-      assertEquals(0.254, _follower.get(), 0.01);
-      _follower.close();
-    }
-
-    @Test
-    public void testFollowTalon() {
-      DBugTalon _follower = new DBugTalon(5135);
-      _follower.follow(_motor1);
-      _motor1.set(ControlMode.PercentOutput, 0.5135);
-      assertEquals(0.5135, _follower.get(), 0.01);
     }
 }

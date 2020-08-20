@@ -3,7 +3,6 @@ package frc.robot.Util;
 import java.util.Objects;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -30,10 +29,9 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
   * Testing stuff
   */
   private SimDevice _simMotor;
-  private SimDouble _simDemand;
+  private SimDouble _simPercent, _simVelocity, _simPosition;
   private double _demand;
   private boolean _isSimulation;
-  private IMotorController _masterToFollow;
 
   /**
    * Constructs a new DBugTalon and configures defaults.
@@ -50,9 +48,10 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
 
     if (this._isSimulation) {
       this._demand = 0.0;
-      this._masterToFollow = null;
       this._simMotor = SimDevice.create("Dbug Talon", deviceNumber);
-      this._simDemand = this._simMotor.createDouble("Motor Demand", false, 0.0);
+      this._simPercent = this._simMotor.createDouble("Motor Precent", false, 0.0);
+      this._simVelocity = this._simMotor.createDouble("Motor Velocity", false, 0.0);
+      this._simPosition = this._simMotor.createDouble("Motor Position", false, 0.0);
     }
   }
 
@@ -152,7 +151,7 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
    */
   @Override
   public double getDistance() {
-    if (this._isSimulation) return this._demand;
+    if (this._isSimulation) return this._simPosition.get();
     return this._distPerPulse * this.getEncoderValue();
   }
 
@@ -164,7 +163,7 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
   @Override
   public void setDistance(double distance) {
     if (this._isSimulation) {
-      this._demand = distance;
+      this._simPosition.set(distance);
       return;
     }
     this.setSelectedSensorPosition(this.convertDistanceToPulses(distance), DBugTalon.kPIDSlot, DBugTalon.kTimeout);
@@ -177,8 +176,8 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
    */
   @Override
   public double getVelocity() {
-    if (this._isSimulation) return this._demand;
-    return this.getSelectedSensorVelocity(1);
+    if (this._isSimulation) return this._simVelocity.get();
+    return this.getSelectedSensorVelocity(DBugTalon.kPIDSlot);
   }
 
   /**
@@ -195,6 +194,10 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
    */
   @Override
   public void zeroEncoder() {
+    if (this._isSimulation) {
+      this._simPosition.set(0.0);
+      return;
+    }
     this.setSelectedSensorPosition(0, DBugTalon.kPIDSlot, DBugTalon.kTimeout);
   }
 
@@ -283,10 +286,7 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
    */
   @Override
   public void set (ControlMode mode, double outputValue) {
-    if (this._isSimulation) {
-      this._demand = outputValue;
-      this._simDemand.set(outputValue);
-    }
+    this._demand = outputValue;
     switch (mode) {
       case Position:
         super.set(mode, this.convertDistanceToPulses(outputValue));
@@ -298,38 +298,12 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
   }
 
   @Override
-  public int getSelectedSensorVelocity(int slot) {
-    if (this._isSimulation) return (int) this._demand;
-    else return super.getSelectedSensorVelocity(slot);
-  }
-
-  @Override
   public double getMotorOutputPercent() {
-    if (this._isSimulation) return this._demand;
+    if (this._isSimulation) return this._simPercent.get();
     return super.getMotorOutputPercent();
   }
 
-  @Override
-  public void follow(IMotorController masterToFollow) {
-    if (this._isSimulation) this._masterToFollow = masterToFollow;
-    else super.follow(masterToFollow);
-	}
-
-  @Override
-  public double get() {
-    if (this._masterToFollow != null) return this._masterToFollow.getMotorOutputPercent();
-    if (this._isSimulation) return this._demand;
-    switch (this.getControlMode()) {
-      case Position:
-        return this.getDistance();
-      case Velocity:
-        return this.getVelocity();
-      case PercentOutput:
-        return super.get();
-      case Current:
-        return this.getStatorCurrent();
-      default:
-        return super.get();
+  public double getDemand() {
+    return this._demand;
     }
-  }
 }
