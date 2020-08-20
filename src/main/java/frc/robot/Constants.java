@@ -25,7 +25,7 @@ public class Constants {
   }
 
   public static final class ArmConstants {
-    public static final int kMotorPort = 3;            // PWM
+    public static final int kMotorPort = 12;            // PWM
     public static final int kPotentiometerPort = 1;    // AIO
     public static final int kUpperLimitSwitchPort = 1; // DIO
     public static final int kLowerLimitSwitchPort = 2; // DIO
