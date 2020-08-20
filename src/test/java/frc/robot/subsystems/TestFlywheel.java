@@ -73,22 +73,4 @@ public class TestFlywheel {
 
         Mockito.reset(_motor1);
     }
-
-    @Test
-    public void testSetDistance() {
-      _testMotor.set(ControlMode.Position, 254);
-      assertEquals(254, _testMotor.get(), 0.01);
-    }
-
-    @Test
-    public void testSetVelocitySpark() {
-      _testMotor.set(ControlMode.Velocity, 3316);
-      assertEquals(3316, _testMotor.get(), 0.01);
-    }
-
-    @Test
-    public void testSetPrecent() {
-      _testMotor.set(ControlMode.Position, 0.7);
-      assertEquals(0.7, _testMotor.get(), 0.01);
-    }
 }

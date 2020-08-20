@@ -4,7 +4,6 @@ package frc.robot.Util;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANEncoder;
-import com.revrobotics.CANError;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
@@ -22,11 +21,9 @@ public class DBugSparkMax extends CANSparkMax implements DBugMotorController {
   * Testing stuff
   */
   private SimDevice _simMotor;
-  private SimDouble _simDemand;
+  private SimDouble _simPercent, _simVelocity, _simPosition;
   private double _demand;
   private boolean _isSimulation;
-  private CANSparkMax _masterToFollow;
-  private ControlMode _mode;
 
   /**
    * Create a new SPARK MAX Controller
@@ -43,17 +40,17 @@ public class DBugSparkMax extends CANSparkMax implements DBugMotorController {
     this._encoder = this.getEncoder();
     this._pidController = this.getPIDController();
 
-    this.configure();
-
     this._isSimulation = RobotBase.isSimulation();
 
     if (this._isSimulation) {
       this._demand = 0.0;
-      this._masterToFollow = null;
-      this._mode = ControlMode.Disabled;
-      this._simMotor = SimDevice.create("Dbug SparkMax", deviceNumber);
-      this._simDemand = this._simMotor.createDouble("Motor Demand", false, 0.0);
+      this._simMotor = SimDevice.create("Dbug Talon", deviceNumber);
+      this._simPercent = this._simMotor.createDouble("Motor Precent", false, 0.0);
+      this._simVelocity = this._simMotor.createDouble("Motor Velocity", false, 0.0);
+      this._simPosition = this._simMotor.createDouble("Motor Position", false, 0.0);
     }
+
+    this.configure();
   }
 
   /**
@@ -97,25 +94,28 @@ public class DBugSparkMax extends CANSparkMax implements DBugMotorController {
 
   @Override
   public double getDistance() {
-    if (this._isSimulation) return this._demand;
+    if (this._isSimulation) return this._simPosition.get();
     return this._distPerRevolution * this.getEncoderValue();
   }
 
   @Override
+  public void setDistance(double distance) {
+    if (this._isSimulation) {
+      this._simPosition.set(distance);
+      return;
+    }
+    this._encoder.setPosition(distance / this._distPerRevolution);
+  }
+
+  @Override
   public double getVelocity() {
-    if (this._isSimulation) return this._demand;
+    if (this._isSimulation) return this._simVelocity.get();
     return this._distPerRevolution * this.getEncoderRate();
   }
 
   @Override
   public double getOutputCurrent() {
     return super.getOutputCurrent();
-  }
-
-  @Override
-  public void setDistance(double distance) {
-    if (this._isSimulation) this._demand = distance;
-    this._encoder.setPosition(distance / this._distPerRevolution);
   }
 
   @Override
@@ -129,6 +129,10 @@ public class DBugSparkMax extends CANSparkMax implements DBugMotorController {
 
   @Override
   public void zeroEncoder() {
+    if (this._isSimulation) {
+      this._simPosition.set(0.0);
+      return;
+    }
     this._encoder.setPosition(0);
   }
 
@@ -139,11 +143,7 @@ public class DBugSparkMax extends CANSparkMax implements DBugMotorController {
   }
 
   public void set(ControlMode mode, double outputValue) {
-    if (this._isSimulation) {
-      this._demand = outputValue;
-      this._mode = mode;
-      this._simDemand.set(outputValue);
-    }
+    this._demand = outputValue;
     switch (mode) {
     case Position:
       this._pidController.setReference(outputValue, ControlType.kPosition);
@@ -155,6 +155,7 @@ public class DBugSparkMax extends CANSparkMax implements DBugMotorController {
       this._pidController.setReference(outputValue, ControlType.kCurrent);
       break;
     case PercentOutput:
+      this._simPercent.set(outputValue);
       this.set(outputValue);
       break;
     default:
@@ -163,25 +164,12 @@ public class DBugSparkMax extends CANSparkMax implements DBugMotorController {
   }
 
   @Override
-  public CANError follow(CANSparkMax leader) {
-    if (this._isSimulation) this._masterToFollow = leader;
-		return super.follow(leader);
-	}
-
   public double get() {
-    if (this._masterToFollow != null) return this._masterToFollow.get();
-    if (this._isSimulation) return this._demand;
-    switch (this._mode) {
-      case Position:
-        return this.getDistance();
-      case Velocity:
-        return this.getVelocity();
-      case PercentOutput:
-        return super.get();
-      case Current:
-        return this.getOutputCurrent();
-      default:
-        return super.get();
-    }
+    if (this._isSimulation) return this._simPercent.get();
+    return super.get();
+  }
+
+  public double getDemand() {
+    return this._demand;
   }
 }
