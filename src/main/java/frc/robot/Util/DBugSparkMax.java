@@ -64,6 +64,10 @@ public class DBugSparkMax extends CANSparkMax implements DBugMotorController {
     this(deviceNumber, MotorType.kBrushless);
   }
 
+  public void closeSims() {
+    this._simMotor.close();
+  }
+
   @Override
   public void configure() {
     this.restoreFactoryDefaults();

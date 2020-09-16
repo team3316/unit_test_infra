@@ -63,6 +63,10 @@ public class DBugTalon extends WPI_TalonSRX implements DBugMotorController {
     this(deviceNumber, TalonType.REGULAR);
   }
 
+  public void closeSims() {
+    this._simMotor.close();
+  }
+
   /**
    * Configures the talon using the parameters defined in the Config
    */
